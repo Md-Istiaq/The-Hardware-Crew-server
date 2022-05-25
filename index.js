@@ -25,6 +25,12 @@ async function run(){
             const parts = await cursour.toArray()
             res.send(parts)
         })
+        app.get('/parts/:id' , async(req,res) =>{
+            const id = req.params.id
+            const query = {_id:ObjectId(id)}
+            const part = await partsCollection.findOne(query)
+            res.send(part)
+        })
 
     }
     finally{
