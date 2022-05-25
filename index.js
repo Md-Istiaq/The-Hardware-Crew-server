@@ -19,12 +19,19 @@ async function run(){
         await client.connect();
         const partsCollection = client.db('assignment12').collection('parts')
         const ordersCollection = client.db('assignment12').collection('orders')
+        const reviewCollection = client.db('assignment12').collection('review')
 
         app.get('/parts' , async(req,res) =>{
             const query = {}
             const cursour =  partsCollection.find(query)
             const parts = await cursour.toArray()
             res.send(parts)
+        })
+        app.get('/review' , async(req,res) =>{
+            const query = {}
+            const cursour =  reviewCollection.find(query)
+            const reviews = await cursour.toArray()
+            res.send(reviews)
         })
         app.get('/parts/:id' , async(req,res) =>{
             const id = req.params.id
@@ -37,6 +44,14 @@ async function run(){
             const newOrder = req.body;
             const result = await ordersCollection.insertOne(newOrder)
             res.send(result)
+        })
+
+        app.get('/orders/:email', async(req,res) =>{
+            const email = req.query.email
+                const query = {email:email}
+                const cursor = ordersCollection.find(query)
+                const items = await cursor.toArray()
+                res.send(items)
         })
 
 
