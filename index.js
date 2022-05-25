@@ -20,6 +20,7 @@ async function run(){
         const partsCollection = client.db('assignment12').collection('parts')
         const ordersCollection = client.db('assignment12').collection('orders')
         const reviewCollection = client.db('assignment12').collection('review')
+        const usersCollection = client.db('assignment12').collection('users')
 
         app.get('/parts' , async(req,res) =>{
             const query = {}
@@ -52,12 +53,26 @@ async function run(){
         })
 
         app.get('/orders/:email', async(req,res) =>{
-            const email = req.query.email
+            const email = req.params.email
                 const query = {email:email}
                 const cursor = ordersCollection.find(query)
                 const items = await cursor.toArray()
                 res.send(items)
         })
+
+        app.put('/user/:email' , async(req,res) =>{
+            const email = req.params.email;
+            const user = req.body
+            const filter = {email:email}
+            const options = {upsert:true}
+            const updatedDoc = {
+
+              $set:user
+            }
+            const result = await usersCollection.updateOne(filter , updatedDoc,options)
+            
+            res.send({result})
+          })
 
 
     }
