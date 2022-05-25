@@ -45,6 +45,11 @@ async function run(){
             const result = await ordersCollection.insertOne(newOrder)
             res.send(result)
         })
+        app.post('/review' , async(req,res) =>{
+            const newReview = req.body;
+            const result = await reviewCollection.insertOne(newReview)
+            res.send(result)
+        })
 
         app.get('/orders/:email', async(req,res) =>{
             const email = req.query.email
