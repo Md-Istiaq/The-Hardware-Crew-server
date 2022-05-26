@@ -44,6 +44,19 @@ async function run(){
             const parts = await cursour.toArray()
             res.send(parts)
         })
+
+        app.post('/parts' , async(req,res) =>{
+            const newParts = req.body;
+            const result = await partsCollection.insertOne(newParts)
+            res.send(result)
+        })
+
+        app.delete('/parts/:id' , async(req,res) =>{
+            const id = req.params.id
+            const query = {_id:ObjectId(id)}
+            const result = await partsCollection.deleteOne(query)
+            res.send(result)
+        })
         app.get('/review' , async(req,res) =>{
             const query = {}
             const cursour =  reviewCollection.find(query)
@@ -90,7 +103,7 @@ async function run(){
             res.send({result ,token})
           })
 
-          app.get('/user' ,verifyJWT, async(req,res) =>{
+          app.get('/user' , async(req,res) =>{
             const users = await usersCollection.find().toArray()
             res.send(users)
           })
