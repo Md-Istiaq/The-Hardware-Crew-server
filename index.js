@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { MongoClient, ServerApiVersion ,ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000
 const app = express()
@@ -43,6 +44,13 @@ async function run(){
             const cursour =  partsCollection.find(query)
             const parts = await cursour.toArray()
             res.send(parts)
+        })
+
+        app.get('/orders' ,verifyJWT, async(req,res) =>{
+            const query = {}
+            const cursour =  ordersCollection.find(query)
+            const orders = await cursour.toArray()
+            res.send(orders)
         })
 
         app.post('/parts' , async(req,res) =>{
