@@ -75,6 +75,15 @@ async function run(){
             const result = await ordersCollection.insertOne(newOrder)
             res.send(result)
         })
+
+        app.get('/order/:id' , async(req,res) =>{
+            const id = req.params.id
+            console.log(id)
+            const query = {_id:ObjectId(id)}
+            const order = await ordersCollection.findOne(query)
+            res.send(order)
+        })
+
         app.post('/review' , async(req,res) =>{
             const newReview = req.body;
             const result = await reviewCollection.insertOne(newReview)
@@ -82,9 +91,11 @@ async function run(){
         })
 
         app.get('/orders/:email', async(req,res) =>{
+
             const email = req.params.email
+              console.log(email)
                 const query = {email:email}
-                const cursor = ordersCollection.find(query)
+                const cursor =  ordersCollection.find(query)
                 const items = await cursor.toArray()
                 res.send(items)
         })
@@ -106,6 +117,13 @@ async function run(){
           app.get('/user' , async(req,res) =>{
             const users = await usersCollection.find().toArray()
             res.send(users)
+          })
+
+          app.get('/admin/:email' , async(req,res) =>{
+            const email = req.params.email
+            const user = await usersCollection.findOne({email:email})
+            const isAdmin = user.role === 'admin'
+            res.send({admin:isAdmin})
           })
 
 
