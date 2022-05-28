@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')('sk_test_51L48o3LH09G82JEzZsL4yIaSFAjsfo3KadL25Sk51ldA92eqWUGc3J3nkb1BxzB3oNivh6l6aSbtjuAnCv6mgIyn00vglco4Ho');
 const { MongoClient, ServerApiVersion ,ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000
 const app = express()
@@ -38,6 +38,7 @@ async function run(){
         const ordersCollection = client.db('assignment12').collection('orders')
         const reviewCollection = client.db('assignment12').collection('review')
         const usersCollection = client.db('assignment12').collection('users')
+        const profileCollection = client.db('assignment12').collection('profile')
 
         app.get('/parts' , async(req,res) =>{
             const query = {}
@@ -46,7 +47,7 @@ async function run(){
             res.send(parts)
         })
 
-        app.get('/orders' ,verifyJWT, async(req,res) =>{
+        app.get('/orders', async(req,res) =>{
             const query = {}
             const cursour =  ordersCollection.find(query)
             const orders = await cursour.toArray()
@@ -86,7 +87,7 @@ async function run(){
 
         app.get('/order/:id' , async(req,res) =>{
             const id = req.params.id
-            console.log(id)
+          
             const query = {_id:ObjectId(id)}
             const order = await ordersCollection.findOne(query)
             res.send(order)
@@ -98,14 +99,30 @@ async function run(){
             res.send(result)
         })
 
+        app.post('/profile' , async(req,res) =>{
+            const Profile = req.body;
+            const result = await profileCollection.insertOne(Profile)
+            res.send(result)
+        })
+
         app.get('/orders/:email', async(req,res) =>{
 
             const email = req.params.email
-              console.log(email)
+              
                 const query = {email:email}
                 const cursor =  ordersCollection.find(query)
                 const items = await cursor.toArray()
                 res.send(items)
+        })
+
+        app.get('/profile/:email', async(req,res) =>{
+
+            const email = req.params.email
+              
+                const query = {email:email}
+                const cursor =  profileCollection.find(query)
+                const profile = await cursor.toArray()
+                res.send(profile)
         })
 
         app.put('/user/:email' , async(req,res) =>{
@@ -133,6 +150,33 @@ async function run(){
             const isAdmin = user.role === 'admin'
             res.send({admin:isAdmin})
           })
+
+          app.put('/users/admin/:email' , async(req,res) =>{
+            const email = req.params.email;
+             const filter = {email:email}
+            
+            const updatedDoc = {
+
+              $set:{role:'admin'}
+            }
+            const result = await usersCollection.updateOne(filter , updatedDoc)
+            
+            res.send(result )
+
+          })
+
+          app.post('/create-payment-intent', async(req, res) =>{
+            const order = req.body;
+            const price = parseInt(order.price);
+            const amount = price*100;
+            console.log(amount)
+            const paymentIntent = await stripe.paymentIntents.create({
+              amount : amount,
+              currency: 'usd',
+              payment_method_types:['card']
+            });
+            res.send({clientSecret: paymentIntent.client_secret})
+          });
 
 
     }
